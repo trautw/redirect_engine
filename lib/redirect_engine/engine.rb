@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'json'
 
 class RedirectEngine::Engine
 
@@ -40,6 +41,15 @@ class RedirectEngine::Engine
     write_log "Redirect to #{redirect_url}"
     sina.redirect redirect_url, return_code
     # return "Danke"
+  end
+
+  def get_config(host)
+    get_redirect_config(host).to_json
+  end
+
+  def set_config(host, configuration)
+    write_log "Setting config for host #{host} to \n#{configuration.to_json}"
+    configuration.to_json
   end
 
 # --- private functions ---

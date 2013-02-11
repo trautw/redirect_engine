@@ -53,6 +53,18 @@ get '/redirector/:query' do
   engine.redirect_for(self,  request, params)
 end
 
+# e.g. http://ubutu.chtw.de/config/trautwein.hoeip.net
+get '/config/:host' do
+  headers "Access-Control-Allow-Origin" => "http://ubuntu.chtw.de:4567"
+  engine.get_config(params[:host])
+end
+
+# e.g. http://ubutu.chtw.de/config/trautwein.hoeip.net
+post '/config/:host' do
+  headers "Access-Control-Allow-Origin" => "http://ubuntu.chtw.de:4567"
+  engine.set_config(params[:host], params[:json])
+end
+
 get '/*' do
   # write_log "Error: Request doesn't match a valid route!"
   print "Error: Request #{params[:splat]} doesn't match a valid route!\n"
