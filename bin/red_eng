@@ -1,0 +1,50 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          redirect_engine
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:
+# X-Start-Before:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Start redirect_engine daemon
+# Description: Start redirect_engine daemon
+### END INIT INFO
+
+# source /usr/local/rvm/scripts/rvm
+# rvm use 1.9.2
+# RUBYDIR=/usr/local/rvm/gems/ruby-1.9.2-p290
+
+# Vorher
+# gem install thin
+# gem install sinatra
+
+# rvm use 1.9.3
+# RUBYDIR=/usr/local/rvm/gems/ruby-1.9.3-p194
+
+MYNAME=`basename $0`
+
+set -e
+
+TOOLROOT=/home/trautw/Projekte/redirect_engine
+
+case "$1" in
+  start)
+                # start-stop-daemon --start --quiet --user cdb --chdir /srv/cdb --exec $RUBYDIR/bin/thin -- -e production -P /var/run/$MYNAME.pid -d start
+                start-stop-daemon --start --quiet --background --chdir "$TOOLROOT" --exec "$TOOLROOT/bin/redirect_engine" -- 
+        ;;
+  stop)
+                start-stop-daemon --stop --retry=INT/10/TERM/5/KILL/2 --name redirect_engine
+        ;;
+  restart)
+		$0 stop
+		sleep 5
+		$0 start
+        ;;
+  *)
+        echo "Usage: $MYNAME {start|stop|restart}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
