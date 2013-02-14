@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'json'
+require 'yaml/store'
 
 class RedirectEngine::Engine
 
@@ -49,6 +50,9 @@ class RedirectEngine::Engine
 
   def set_config(host, configuration)
     $logger.info "Setting config for host #{host} to \n#{configuration.to_json}"
+    $logger.info "TODO: VALIDATION!!"
+    put_redirect_config(host, configuration)
+    $config[host] = nil
     configuration.to_json
   end
 
@@ -61,6 +65,28 @@ private
       $config[host] = load_yaml "#{host}.yaml"
     end
     $config[host]
+  end
+
+  def put_redirect_config(host, data)
+    begin
+      filename = "#{host}.yaml"
+      store = YAML::Store.new( filename, :Indent => 2)
+      $logger.info "Updating: #{File.expand_path(filename)}"
+      store.transaction do
+        data.each_pair do |key, value|
+          if store.nil?
+            $logger.error "Error: no valid yaml #{File.expand_path(filename)}"
+          else
+            store[key] = value
+          end
+        end
+      end
+      true
+    rescue Exception => e
+      $logger.error "Error: while writing back yaml file #{filename}"
+      $logger.error e.message
+      false
+    end
   end
 
   def load_yaml(filename)
