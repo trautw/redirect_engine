@@ -1,0 +1,68 @@
+#!/bin/bash -l
+# /export/home/ctraut/Projekte/tuifly/deployment_engine/bin/deploy_caller -c ctraut/entwicklungen/samba_test_recipe.rb -e ctraut
+
+VERSION_RUBY=1.9.2
+WORKSPACE=.
+DE=`dirname $0`/de
+rvm_path="$HOME/Projekte/tuifly/rvm"
+RECIPE=./recipe/deploy.rb
+CDB=../db
+
+VERSION=0.0.1
+
+usage=$(
+cat <<EOF
+$0 [OPTION]
+-b VALUE    set cdb path to VALUE
+-c VALUE    set recipe name to VALUE
+-e VALUE    set env to VALUE
+-v VALUE    set project software version to VALUE
+-r VALUE    set rvm_path to VALUE
+-d VALUE    set de executable to VALUE
+-g VALUE    set deployment engine version to VALUE
+EOF
+)
+
+while getopts "b:c:e:v:r:d:" OPTION; do
+  case "$OPTION" in
+    b)
+      CDB="$OPTARG"
+      ;;
+    c)
+      RECIPE="$OPTARG"
+      ;;
+    e)
+      ENVIRONMENT="$OPTARG"
+      ;;
+    v)
+      VERSION="$OPTARG"
+      ;;
+    r)
+      rvm_path="$OPTARG"
+      ;;
+    d)
+      DE="$OPTARG"
+      ;;
+    g)
+      VERSION_DEPENGINE="_$OPTARG_"
+      ;;
+    *)
+      echo "unrecognized option"
+      echo "$usage"
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$rvm_path" = "unset" ]; then
+  echo "$usage"
+  exit 1
+fi
+
+export rvm_path
+source $rvm_path/scripts/rvm
+rvm reload
+rvm use $VERSION_RUBY
+# type "$DE"
+# echo "$DE" $VERSION_DEPENGINE --recipe "$RECIPE" --deployhome "$WORKSPACE" --env "$ENVIRONMENT" --version "$VERSION"
+exec "$DE" $VERSION_DEPENGINE --recipe "$RECIPE" --deployhome "$WORKSPACE" --env "$ENVIRONMENT" --version "$VERSION" --cdb "$CDB"
